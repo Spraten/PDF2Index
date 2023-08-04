@@ -84,3 +84,10 @@ You can use the AcronymHunter tool to extract relevant keywords, abbreviations, 
 
 This project is open-sourced and distributed under the MIT License.
 
+# IMPORT NOTE 
+The majority of the code for PDF2Index is derived from the open-source project available at https://github.com/Ge0rg3/sans-index-creator. I want to give credit to the original author, as their work forms the foundation of this project. I deeply respect and appreciate the effort they put into creating a useful tool for generating book indexes from SANS PDFs.
+
+While I have used their code as a starting point, I have made significant modifications and improvements to suit the specific requirements of PDF2Index. These changes include adding functionalities like custom word inclusion, filtering out common English words, handling specific word indexes, and more. My goal is to enhance the tool's capabilities and tailor it to a broader audience.
+
+I want to emphasize that I do not intend to steal credit or claim this work as entirely my own. I am committed to respecting the principles of open-source development and acknowledge the collaborative nature of such projects. Giving proper credit to the original author is essential, and I sincerely thank them for their valuable contribution to the community. I hope that my modifications will further enrich the usefulness of this tool for users interested in generating indexes for their SANS PDF books.
+
