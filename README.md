@@ -84,6 +84,3 @@ You can use the AcronymHunter tool to extract relevant keywords, abbreviations, 
 
 This project is open-sourced and distributed under the MIT License.
 
----
-
-This updated README includes instructions for both PDF2Index and PDF2Index_Combiner. Additionally, it mentions the AcronymHunter tool and explains how it can be used to generate input for PDF2Index. Users now have a clearer understanding of the different components of the project and how they can utilize them.
