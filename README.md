@@ -1,15 +1,16 @@
-# PDF2Index
+## PDF2Index
 
-# SANS Text to Index
+PDF2Index is a Python script that converts a SANS PDF to a text file and generates an index from the text. The script utilizes `pdftotext` to convert the PDF to a text file and then processes the text to create an index. Users can specify specific words, phrases, or acronyms to be included in the index.
 
-## Overview
+### Requirements
 
-SANS Text to Index is a Python script that facilitates the process of generating an index for a SANS PDF book converted into a text file using pdftotext. The script extracts relevant words and phrases from the text and organizes them into an index. Additionally, it offers the option to include specific user-defined words, phrases, or acronyms in the index.
+- Python 3.x
+- `requests` library (install using `pip install requests`)
 
-## Usage
+### Usage
 
 ```
-python3 sans_text_to_index.py -i <input-file> [-o <output-file>] [-n <student-name>] [-w <words-file>]
+python3 pdf2index.py -i <input-file> [-o <output-file>] [-n <student-name>] [-w <words-file>]
 ```
 
 #### Arguments:
@@ -19,38 +20,70 @@ python3 sans_text_to_index.py -i <input-file> [-o <output-file>] [-n <student-na
 - `-n`, `--student-name`: (Optional) The full name of the student. This is used as a delimiter to split the pages of the SANS book.
 - `-w`, `--words-file`: (Optional) The path to a file containing specific words, phrases, or acronyms that you want to include in the index.
 
-## Requirements
+### AcronymHunter
 
-- Python 3.x
-- The `requests` library
+AcronymHunter is a Python tool I created to work in conjunction with PDF2Index. It allows users to extract abbreviations, acronyms, and function calls from text files. Using regular expressions, this script facilitates a comprehensive and precise search to extract relevant patterns from the provided text.
+https://github.com/Spraten/AcronymHunter
 
-Install the required library using pip:
+#### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Spraten/PDF2Index.git
+   ```
+2. Navigate to the repository directory:
+   ```bash
+   cd PDF2Index
+   ```
+
+#### Usage
+
+1. Convert PDF to text: Use `pdftotext` to convert the PDF to a text file. If the PDF is password-protected, remove the password using `qpdf` before conversion. For example:
+   ```bash
+   qpdf --password=enterpasswordhere -decrypt "InputFilename.pdf" "OutputFilename.pdf"
+   pdftotext unencryptedfile.pdf coursetxt.txt
+   ```
+2. Place the text file you want to analyze into the repository directory. The script is set to read from a file named `input.txt` by default.
+3. Run the script:
+   ```bash
+   python3 AcronymHunter.py
+   ```
+4. The findings—abbreviations, acronyms, and function calls—will be stored in `out.txt`.
+
+#### Customizing Input/Output
+
+To target a different file or alter the output file name:
+
+1. Open `AcronymHunter.py` in a text editor or IDE of your choice.
+2. Change the filename in the `find_abbreviations("input.txt")` line to your intended input filename.
+3. (Optionally) To adjust the output filename, modify the `io.open("out.txt", 'w', encoding='utf-8')` line.
+
+### PDF2Index_Combiner
+
+PDF2Index_Combiner is a Python script that combines multiple index files generated using PDF2Index into a single consolidated index. It takes the filenames of the index files as command-line arguments and merges their content into a new index file.
+
+#### Usage
 
 ```
-pip install requests
+python pdf2index_combiner.py index1.txt index2.txt index3.txt ...
 ```
 
-## Examples
+- Provide the filenames of the index files you want to combine as command-line arguments. Separate each filename with a space.
 
-1. Basic usage:
+#### Customization
 
-```
-python3 sans_text_to_index.py -i input.txt
-```
+- You can modify the script according to your requirements. For example, change the output filename by modifying the `output_file` variable.
+- Customize the input file format if your index files have a different structure.
+- Modify the separators or formatting used when combining the entries.
 
-This command will generate an index for the `input.txt` file, and the output will be saved in `input_index.txt`.
+## Generating Input for PDF2Index
 
-2. Including specific words:
+You can use the AcronymHunter tool to extract relevant keywords, abbreviations, and acronyms from the text, which can be used as input for PDF2Index. The AcronymHunter tool recognizes and extracts abbreviations, acronyms, and function calls from the text files, making it easier to create a comprehensive index for your SANS book.
 
-```
-python3 sans_text_to_index.py -i input.txt -w specific_words.txt
-```
+### License
 
-This will generate an index for `input.txt`, and it will include the words, phrases, or acronyms listed in the `specific_words.txt` file.
+This project is open-sourced and distributed under the MIT License.
 
-## Notes
+---
 
-- The script uses an online list of common English words to filter out frequently used and unimportant words from the index.
-- It removes common punctuation and other characters from the words to improve accuracy.
-- The final index is sorted alphabetically, case-insensitive, and written to the output file.
-
+This updated README includes instructions for both PDF2Index and PDF2Index_Combiner. Additionally, it mentions the AcronymHunter tool and explains how it can be used to generate input for PDF2Index. Users now have a clearer understanding of the different components of the project and how they can utilize them.
