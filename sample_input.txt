@@ -21,8 +21,6 @@ Windows Defender Application Control (WDAC)
 Malware
 Scanning Interface (AMSI)
 User Account Control (UAC)
-Li
-
 Windows Defender Application Control (WDAC)
 Common Language
 Runtime (CLR)
