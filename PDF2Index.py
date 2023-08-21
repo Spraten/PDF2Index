@@ -2,6 +2,7 @@
 import requests as rq
 import argparse
 import sys
+from fuzzywuzzy import process
 
 # Parse input
 Usage = ("""{}SANS Txt to Index
@@ -33,11 +34,11 @@ if options.student_name:
 # Load specific words
 specific_words = []
 if options.words_file:
-    with open(options.words_file, 'r', encoding='utf-8') as wf:
+    with open(options.words_file, 'r',) as wf:
         specific_words = [line.strip() for line in wf]
 
 # Get common English words
-common_words = rq.get("https://raw.githubusercontent.com/dwyl/english-words/master/words.txt").text.split("\n")
+common_words = set(rq.get("https://raw.githubusercontent.com/dwyl/english-words/master/words.txt").text.split("\n"))
 
 # Function to recursively strip given characters in a word
 characters_to_strip = "()'\":,”“‘?;-•’—…[]!"
@@ -58,20 +59,17 @@ def strip_characters(word):
 
 # Check that word should be added to index
 def word_is_eligible(word):
-    if len(word) < 3:
-        return False
-    if word[0].isdigit():
-        return False
-    if word.lower() in common_words or word.lower() + "s" in common_words:
-        return False
-    if word.startswith("http://") or word.startswith("https://"):
+    if len(word) < 3 or word[0].isdigit() or word.lower() in common_words or word.startswith(("http://", "https://")):
         return False
     return True
 
 # Get pages in the text file
-with open(options.input_file, "r", encoding="utf-8") as f:
+with open(options.input_file, "r", ) as f:
     data = f.read()
     pages = data.split(delimeter)[1:]
+
+print(f"Number of pages found: {len(pages)}")
+
 # Initialize specific word index
 specific_word_index = {word: [] for word in specific_words}
 
@@ -81,14 +79,12 @@ total_words = []
 for page_idx, page in enumerate(pages):
     page = page.replace("\n", " ").replace("\t", " ").replace("  ", " ").strip()
     words = page.split(" ")
-    long_words = []
-
-    for word in words:
-        word_stripped = strip_characters(word).lower()
-        if word_is_eligible(word_stripped):
-            total_words.append(word_stripped)
-            long_words.append(word_stripped)
+    long_words = [strip_characters(word).lower() for word in words if word_is_eligible(strip_characters(word).lower())]
+    total_words += long_words
     index[page_idx] = long_words
+
+    print(f"Processing page {page_idx}: {len(long_words)} long words found")
+    print(f"Long words found on page {page_idx}: {long_words[:5]}...")  # Print first 5 long words
 
     # Check for specific words in the word list and populate their index
     for word in specific_words:
@@ -96,26 +92,31 @@ for page_idx, page in enumerate(pages):
             specific_word_index[word].append(str(page_idx))
 
 # Combine the specific word index with the main index
-results = []
-for word, pages in specific_word_index.items():
-    if pages:  # If the word was found in any pages
-        results.append(f"{word}: {', '.join(sorted(set(pages)))}")
+results = {word.lower(): sorted(set(pages)) for word, pages in specific_word_index.items() if pages}
 
 # For the main index
 for word in set(total_words):
-    pages_word_is_in = []
-    for page in index.keys():
-        if word in index[page]:
-            pages_word_is_in.append(str(page))
-
+    pages_word_is_in = [str(page) for page in index.keys() if word in index[page]]
     if len(pages_word_is_in) < 15:
-        results.append(f"{word}: {', '.join(sorted(set(pages_word_is_in)))}")
+        results[word.lower()] = sorted(set(pages_word_is_in))
+
+# Consolidate similar words using fuzzy matching
+consolidated_results = {}
+for word, pages in results.items():
+    match_score = process.extractOne(word, consolidated_results.keys(), score_cutoff=80)
+    if match_score:
+        match, score = match_score
+        consolidated_results[match] += pages
+        consolidated_results[match] = sorted(set(consolidated_results[match]))
+    else:
+        consolidated_results[word] = pages
 
 # Sort and save the results
-results.sort(key=str.casefold)
+sorted_results = [f"{word}: {', '.join(pages)}" for word, pages in sorted(consolidated_results.items(), key=lambda x: x[0].casefold())]
 
 with open(options.output_file, "w", encoding='utf-8') as f:
-    for result in results:
+    for result in sorted_results:
         f.write(result + "\n")
 
+print(f"Total results: {len(sorted_results)}")
 print(f"Written index to {options.output_file}")
